@@ -5,6 +5,8 @@ from keras import objectives
 from keras.datasets import mnist
 import numpy as np
 import tensorflow as tf
+import matplotlib.pyplot as plt
+from scipy.stats import norm
 tf.compat.v1.disable_eager_execution()
 
 
@@ -64,7 +66,26 @@ test_data = test_data.reshape( (len(test_data), np.prod(test_data.shape[1:])))
 """
 Train VAE
 """
-vae.fit(train_data, train_data, shuffle=True, epochs=5, batch_size=100, validation_data=(test_data, test_data), verbose=1) 
+vae.fit(train_data, train_data, shuffle=True, epochs=10, batch_size=100, validation_data=(test_data, test_data), verbose=1) 
 
+"""
+display
+"""
+n = 15
+digit_size = 28
+figure = np.zeros((digit_size * n, digit_size * n))
+
+grid_x = norm.ppf(np.linspace(0.05, 0.95, n))
+grid_y = norm.ppf(np.linspace(0.05, 0.95, n))
+
+for i, yi in enumerate(grid_x):
+    for j, xi in enumerate(grid_y):
+        z_sample = np.array([[xi, yi]])
+        img_decoded = decoder.predict(z_sample)
+        digit = img_decoded[0].reshape(digit_size, digit_size)
+        figure[i * digit_size: (i + 1) * digit_size, j*digit_size: (j + 1) * digit_size] = digit
+plt.figure(figsize=(10,10))
+plt.imshow(figure, cmap='Greys_r')
+plt.show()
 
 
